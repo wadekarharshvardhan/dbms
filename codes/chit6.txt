@@ -1,0 +1,66 @@
+-- Chit 6: Borrower and Fine tables + stored procedure (MySQL)
+
+DROP TABLE IF EXISTS Fine;
+DROP TABLE IF EXISTS Borrower;
+
+CREATE TABLE Borrower (
+  Roll_no INT PRIMARY KEY,
+  Name VARCHAR(100),
+  DateofIssue DATE,
+  NameofBook VARCHAR(200),
+  Status CHAR(1) -- 'I' issued, 'R' returned
+);
+
+CREATE TABLE Fine (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  Roll_no INT,
+  Date_fine DATE,
+  Amt DECIMAL(10,2),
+  FOREIGN KEY (Roll_no) REFERENCES Borrower(Roll_no)
+);
+
+-- Example data
+INSERT INTO Borrower VALUES (1,'Rohit','2025-09-01','DBMS Textbook','I');
+INSERT INTO Borrower VALUES (2,'Sneha','2025-10-10','OS Textbook','I');
+
+-- Stored procedure (MySQL)
+DELIMITER $$
+CREATE PROCEDURE proc_calculate_fine(IN p_roll_no INT, IN p_nameofbook VARCHAR(200))
+BEGIN
+  DECLARE v_issue_date DATE;
+  DECLARE v_days INT;
+  DECLARE v_fine DECIMAL(10,2) DEFAULT 0;
+  -- Check record exists and status = 'I'
+  SELECT DateofIssue INTO v_issue_date
+  FROM Borrower
+  WHERE Roll_no = p_roll_no AND NameofBook = p_nameofbook AND Status = 'I'
+  LIMIT 1;
+
+  IF v_issue_date IS NULL THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No issued record found for this roll/book';
+  END IF;
+
+  SET v_days = DATEDIFF(CURDATE(), v_issue_date);
+
+  IF v_days <= 0 THEN
+    SET v_fine = 0;
+  ELSEIF v_days BETWEEN 15 AND 30 THEN
+    SET v_fine = (v_days) * 5; -- interpretation: Rs 5 per day for days between 15 and 30
+  ELSEIF v_days > 30 THEN
+    -- interpret: for >30 days, Rs 50 per day for days beyond 30, plus Rs5 per day for first 30
+    SET v_fine = (30 * 5) + ((v_days - 30) * 50);
+  ELSE
+    SET v_fine = (v_days) * 5; -- fallback
+  END IF;
+
+  -- Insert fine if > 0
+  IF v_fine > 0 THEN
+    INSERT INTO Fine (Roll_no, Date_fine, Amt) VALUES (p_roll_no, CURDATE(), v_fine);
+  END IF;
+
+  -- Update Borrower status to 'R' (returned)
+  UPDATE Borrower SET Status = 'R' WHERE Roll_no = p_roll_no AND NameofBook = p_nameofbook;
+
+  COMMIT;
+END$$
+DELIMITER ;

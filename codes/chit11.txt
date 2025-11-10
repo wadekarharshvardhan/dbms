@@ -1,0 +1,41 @@
+use analyticsDB;
+
+db.sales.drop();
+db.sales.insertMany([
+  { _id: 1, date: ISODate("2025-09-02"), store: "S1", amount: 1200, items: 3 },
+  { _id: 2, date: ISODate("2025-09-10"), store: "S1", amount: 4000, items: 7 },
+  { _id: 3, date: ISODate("2025-10-01"), store: "S2", amount: 2300, items: 4 },
+  { _id: 4, date: ISODate("2025-10-15"), store: "S1", amount: 1500, items: 2 },
+  { _id: 5, date: ISODate("2025-10-20"), store: "S2", amount: 3200, items: 6 }
+]);
+
+// Create compound index to accelerate queries that filter by store and date range:
+db.sales.createIndex({ store: 1, date: -1 });
+
+// Aggregation pipeline: monthly total sales per store
+db.sales.aggregate([
+  // project year/month fields
+  { $project: {
+      store: 1,
+      amount: 1,
+      year: { $year: "$date" },
+      month: { $month: "$date" }
+  }},
+  // group by store + year + month
+  { $group: {
+      _id: { store: "$store", year: "$year", month: "$month" },
+      totalSales: { $sum: "$amount" },
+      totalItems: { $sum: "$items" },
+      txCount: { $sum: 1 }
+  }},
+  // sort recent first
+  { $sort: { "_id.year": -1, "_id.month": -1, "_id.store": 1 } }
+]);
+
+// Aggregation: top-N stores by revenue in Oct 2025
+db.sales.aggregate([
+  { $match: { date: { $gte: ISODate("2025-10-01"), $lt: ISODate("2025-11-01") } } },
+  { $group: { _id: "$store", revenue: { $sum: "$amount" } } },
+  { $sort: { revenue: -1 } },
+  { $limit: 3 }
+]);

@@ -1,0 +1,73 @@
+-- Chit 2: University/college database
+
+DROP TABLE IF EXISTS Student;
+DROP TABLE IF EXISTS Teaches;
+
+CREATE TABLE Student (
+  stud_id INT PRIMARY KEY,
+  deptnm VARCHAR(50),
+  sem INT,
+  name VARCHAR(100),
+  yr INT,
+  credits INT
+);
+
+CREATE TABLE Teaches (
+  teacher_id INT PRIMARY KEY,
+  teacher_name VARCHAR(100),
+  salary DECIMAL(12,2),
+  deptnm VARCHAR(50)
+);
+
+-- 1. Insert sample records
+INSERT INTO Student VALUES (1,'Comp',3,'Rahul',2024,18);
+INSERT INTO Student VALUES (2,'IT',2,'Priya',2024,20);
+INSERT INTO Student VALUES (3,'Comp',1,'Sagar',2024,0);
+
+INSERT INTO Teaches VALUES (11,'Dr. Patil',30000,'Comp');
+INSERT INTO Teaches VALUES (12,'Ms. Joshi',1800,'Maths');
+INSERT INTO Teaches VALUES (13,'Mr. Sharma',40000,'IT');
+INSERT INTO Teaches VALUES (14,'Ms. Kale',2200,'Comp');
+
+-- 2. Update student table: change department name 'comp' to 'IT' (case-insensitive)
+UPDATE Student SET deptnm = 'IT' WHERE LOWER(deptnm) = 'comp';
+
+-- 3. Department with highest average salary
+SELECT deptnm, AVG(salary) AS avg_salary
+FROM Teaches
+GROUP BY deptnm
+ORDER BY avg_salary DESC
+LIMIT 1;
+
+-- 4. Delete teachers with salary below 2000
+DELETE FROM Teaches WHERE salary < 2000;
+
+-- 5. Sum of salary of each department
+SELECT deptnm, SUM(salary) AS total_salary
+FROM Teaches
+GROUP BY deptnm;
+
+-- 6. Increase IT department teachers’ salaries by 10%
+UPDATE Teaches SET salary = salary * 1.10 WHERE deptnm = 'IT';
+
+-- 7. Total students and average credits per department
+SELECT deptnm, COUNT(*) AS total_students, AVG(credits) AS avg_credits
+FROM Student
+GROUP BY deptnm;
+
+-- 8. Each department with teacher count and average salary (after deletions/updates).
+SELECT deptnm, COUNT(*) AS teacher_count, AVG(salary) AS avg_salary
+FROM Teaches
+GROUP BY deptnm;
+
+-- 9. Top / highest-paid teachers within each department (MySQL approach)
+SELECT t.teacher_id, t.teacher_name, t.deptnm, t.salary
+FROM Teaches t
+JOIN (
+  SELECT deptnm, MAX(salary) AS max_sal
+  FROM Teaches
+  GROUP BY deptnm
+) m ON t.deptnm = m.deptnm AND t.salary = m.max_sal;
+
+-- 10. Delete students who have 0 credits
+DELETE FROM Student WHERE credits = 0;

@@ -1,0 +1,46 @@
+-- Chit 3: Emp and Dept tables (MySQL)
+
+DROP TABLE IF EXISTS Emp;
+DROP TABLE IF EXISTS Dept;
+
+CREATE TABLE Dept (
+  deptId INT PRIMARY KEY,
+  deptName VARCHAR(50),
+  deptLoc VARCHAR(10) UNIQUE
+);
+
+CREATE TABLE Emp (
+  empId INT PRIMARY KEY,
+  empName VARCHAR(100) NOT NULL,
+  empSal DECIMAL(12,2) NOT NULL CHECK (empSal >= 0),
+  empDeptId INT,
+  CONSTRAINT fk_emp_dept FOREIGN KEY (empDeptId) REFERENCES Dept(deptId)
+);
+
+-- Insert few records
+INSERT INTO Dept VALUES (10,'IT','Pune');
+INSERT INTO Dept VALUES (20,'HR','Mumbai');
+
+INSERT INTO Emp VALUES (1,'Amit',20000,10);
+INSERT INTO Emp VALUES (2,'Sunil',15000,10);
+INSERT INTO Emp VALUES (3,'Rita',18000,20);
+
+-- Create index on empName for faster lookups
+CREATE INDEX idx_empName ON Emp(empName);
+
+-- Show each department with employee count and total salary
+SELECT d.deptId, d.deptName, COUNT(e.empId) AS emp_count, COALESCE(SUM(e.empSal),0) AS total_salary
+FROM Dept d
+LEFT JOIN Emp e ON d.deptId = e.empDeptId
+GROUP BY d.deptId, d.deptName;
+
+-- Create a view with employee details joined to department
+DROP VIEW IF EXISTS v_emp_dept;
+CREATE VIEW v_emp_dept AS
+SELECT e.empId, e.empName, e.empSal, d.deptName, d.deptLoc
+FROM Emp e JOIN Dept d ON e.empDeptId = d.deptId;
+
+-- Give a 5% raise to all employees in the IT department
+UPDATE Emp
+SET empSal = empSal * 1.05
+WHERE empDeptId = (SELECT deptId FROM Dept WHERE deptName = 'IT' LIMIT 1);

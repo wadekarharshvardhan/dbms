@@ -1,0 +1,23 @@
+#UBUNTU_CLEAR_USB_LOG
+
+# Switch to root user
+sudo su
+
+# View kernel messages
+dmesg
+
+# Clear kernel ring buffer (requires root)
+sudo dmesg --clear
+
+
+# Remove old kernel log files (be cautious)
+sudo rm -rf /var/log/kern*
+
+
+# Remove old syslog files
+sudo rm -rf /var/log/syslog*
+
+# Clear bash history
+cat /dev/null > ~/.bash_history && history -c
+
+#thank_me later

@@ -1,0 +1,47 @@
+-- Chit 7: Merge using cursor and counts
+
+DROP TABLE IF EXISTS O_RollCall;
+DROP TABLE IF EXISTS N_RollCall;
+
+CREATE TABLE O_RollCall (rollno INT PRIMARY KEY, name VARCHAR(100));
+CREATE TABLE N_RollCall (rollno INT PRIMARY KEY, name VARCHAR(100));
+
+-- Sample
+INSERT INTO N_RollCall VALUES (1,'A'),(2,'B'),(3,'C');
+INSERT INTO O_RollCall VALUES (2,'B_old');
+
+DELIMITER $$
+CREATE PROCEDURE merge_rollcall()
+BEGIN
+  DECLARE done INT DEFAULT 0;
+  DECLARE v_roll INT;
+  DECLARE v_name VARCHAR(100);
+  DECLARE v_inserted INT DEFAULT 0;
+  DECLARE v_skipped INT DEFAULT 0;
+
+  DECLARE cur CURSOR FOR SELECT rollno, name FROM N_RollCall;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+  OPEN cur;
+  read_loop: LOOP
+    FETCH cur INTO v_roll, v_name;
+    IF done = 1 THEN
+      LEAVE read_loop;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM O_RollCall WHERE rollno = v_roll) THEN
+      INSERT INTO O_RollCall (rollno, name) VALUES (v_roll, v_name);
+      SET v_inserted = v_inserted + 1;
+    ELSE
+      SET v_skipped = v_skipped + 1;
+    END IF;
+  END LOOP;
+
+  CLOSE cur;
+
+  SELECT CONCAT('Inserted: ', v_inserted) AS inserted_count, CONCAT('Skipped: ', v_skipped) AS skipped_count;
+END$$
+DELIMITER ;
+
+-- Call it:
+CALL merge_rollcall();

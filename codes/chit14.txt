@@ -1,0 +1,66 @@
+Chit No: 14 - MongoDB Connectivity (Python)
+Prerequisites
+Install the pymongo library:
+pip install pymongo
+Python Program (app.py)
+Full script for CRUD operations.
+from pymongo import MongoClient
+
+# 1. Connect to MongoDB
+client = MongoClient('mongodb://localhost:27017/')
+db = client['universityDB']
+collection = db['students']
+print("Connected to MongoDB successfully!")
+
+# 2. Define CRUD Operations
+
+def add_student(stud_id, name, major):
+    print(f"Adding student {stud_id}...")
+    student_doc = {
+        "stud_id": stud_id, "name": name, "major": major, "status": "Enrolled"
+    }
+    result = collection.insert_one(student_doc)
+    print(f"Success. Document ID: {result.inserted_id}")
+
+def get_student(stud_id):
+    print(f"Finding student {stud_id}...")
+    student = collection.find_one({"stud_id": stud_id})
+    if student:
+        print(f"Found: {student}")
+    else:
+        print(f"Student {stud_id} not found.")
+    return student
+
+def edit_student_major(stud_id, new_major):
+    print(f"Editing student {stud_id}...")
+    query = {"stud_id": stud_id}
+    update_operation = {"$set": {"major": new_major}}
+    result = collection.update_one(query, update_operation)
+    if result.modified_count > 0:
+        print("Success. Document updated.")
+    else:
+        print("No document found.")
+
+def delete_student(stud_id):
+    print(f"Deleting student {stud_id}...")
+    query = {"stud_id": stud_id}
+    result = collection.delete_one(query)
+    if result.deleted_count > 0:
+        print("Success. Document deleted.")
+    else:
+        print("No document found to delete.")
+
+# 3. Run the operations
+if __name__ == "__main__":
+    collection.delete_many({})
+    
+    add_student(101, "Ravi Kumar", "Physics")
+    get_student(101)
+    edit_student_major(101, "Computer Science")
+    get_student(101)
+    delete_student(101)
+    get_student(101)
+    
+    client.close()
+    print("Connection closed.")
+

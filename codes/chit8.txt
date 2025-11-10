@@ -1,0 +1,49 @@
+-- Chit 8: Accounts and transaction demos
+
+DROP TABLE IF EXISTS Accounts;
+CREATE TABLE Accounts (acc_no INT PRIMARY KEY, cust_name VARCHAR(100), balance DECIMAL(15,2));
+
+INSERT INTO Accounts VALUES
+(1001,'Alice',20000),(1002,'Bob',15000),(1003,'Chetan',5000),(1004,'Deepti',3000),(1005,'Esha',12000);
+
+-- 2-3. start transaction, do transfer, display, rollback
+START TRANSACTION;
+UPDATE Accounts SET balance = balance - 5000 WHERE acc_no = 1001;
+UPDATE Accounts SET balance = balance + 5000 WHERE acc_no = 1002;
+SELECT acc_no, cust_name, balance FROM Accounts WHERE acc_no IN (1001,1002);
+ROLLBACK; -- undo
+
+-- 4. Repeat and commit permanently
+START TRANSACTION;
+UPDATE Accounts SET balance = balance - 5000 WHERE acc_no = 1001;
+UPDATE Accounts SET balance = balance + 5000 WHERE acc_no = 1002;
+COMMIT;
+
+-- 5. Demonstrate SAVEPOINT and ROLLBACK TO SAVEPOINT
+START TRANSACTION;
+UPDATE Accounts SET balance = balance + 1000 WHERE acc_no = 1003;
+SAVEPOINT sp1;
+UPDATE Accounts SET balance = balance + 2000 WHERE acc_no = 1004;
+-- now revert only the last update
+ROLLBACK TO SAVEPOINT sp1;
+COMMIT;
+
+-- 6. Transaction failing due to insufficient balance and automatic rollback (demo as a stored procedure)
+DELIMITER $$
+CREATE PROCEDURE transfer_amount(IN p_from INT, IN p_to INT, IN p_amt DECIMAL(15,2))
+BEGIN
+  DECLARE v_bal DECIMAL(15,2);
+  SELECT balance INTO v_bal FROM Accounts WHERE acc_no = p_from;
+  IF v_bal < p_amt THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Insufficient balance - transaction aborted';
+  ELSE
+    START TRANSACTION;
+      UPDATE Accounts SET balance = balance - p_amt WHERE acc_no = p_from;
+      UPDATE Accounts SET balance = balance + p_amt WHERE acc_no = p_to;
+    COMMIT;
+  END IF;
+END$$
+DELIMITER ;
+
+-- Example that fails:
+-- CALL transfer_amount(1004,1002,100000); -- will SIGNAL and not change balances

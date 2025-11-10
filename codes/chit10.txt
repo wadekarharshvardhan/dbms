@@ -1,0 +1,32 @@
+use shopDB;
+
+db.customers.drop();
+db.customers.insertMany([
+  { _id: 101, name: "Asha", email: "asha@example.com", rewards: 120 },
+  { _id: 102, name: "Vikram", email: "vikram@example.com", rewards: 50 }
+]);
+
+// CREATE: insertOne / insertMany
+db.customers.insertOne({ _id: 103, name: "Meera", email: "meera@example.com", rewards: 0 });
+
+// READ: find & projection
+db.customers.find({}, { name: 1, rewards: 1, _id: 1 });
+
+// UPDATE: updateOne / updateMany
+db.customers.updateOne({ _id: 102 }, { $inc: { rewards: 30 } });
+
+// SAVE: retrieve, change and save (replaces whole doc if _id present)
+var c = db.customers.findOne({ _id: 101 });
+c.phone = "9876543210";
+c.rewards = 200;
+// save will replace the document identified by _id
+db.customers.save(c);
+
+// Upsert via save: if document with _id doesn't exist, save will insert
+db.customers.save({ _id: 200, name: "NewUser", email: "newuser@example.com", rewards: 10 });
+
+// DELETE: remove a customer
+db.customers.deleteOne({ _id: 103 });
+
+// Verify final state
+db.customers.find().pretty();

@@ -1,0 +1,41 @@
+-- Chit 5: customer and orders
+
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS customer;
+
+CREATE TABLE customer (
+  customer_id INT PRIMARY KEY,
+  first_name VARCHAR(100)
+);
+
+CREATE TABLE orders (
+  order_id INT PRIMARY KEY,
+  amount DECIMAL(10,2),
+  customer_id INT,
+  FOREIGN KEY (customer_id) REFERENCES customer(customer_id)
+);
+
+-- Sample data
+INSERT INTO customer VALUES (1,'Alice'),(2,'Bob'),(3,'Chetan');
+INSERT INTO orders VALUES (100,500,1),(101,700,1),(102,200,2);
+
+-- 1. USING clause JOIN (works if same column name)
+SELECT customer_id, first_name, order_id, amount
+FROM customer JOIN orders USING (customer_id);
+
+-- 2. Customers who have NOT placed any order
+SELECT c.customer_id, c.first_name
+FROM customer c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_id IS NULL;
+
+-- 3. Customer names and total amount they have spent
+SELECT c.customer_id, c.first_name, COALESCE(SUM(o.amount),0) AS total_spent
+FROM customer c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.first_name;
+
+-- 4. CROSS JOIN all combos but filter amount > 600
+SELECT c.first_name, o.order_id, o.amount
+FROM customer c CROSS JOIN orders o
+WHERE o.amount > 600;

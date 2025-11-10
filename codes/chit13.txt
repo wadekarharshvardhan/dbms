@@ -1,0 +1,20 @@
+-- Chit 13: Grade calculation (MySQL)
+DELIMITER $$
+CREATE PROCEDURE proc_grade(IN p_name VARCHAR(100), IN p_marks INT)
+BEGIN
+  DECLARE v_grade CHAR(1);
+  IF p_marks >= 90 THEN
+    SET v_grade = 'A';
+  ELSEIF p_marks >= 75 THEN
+    SET v_grade = 'B';
+  ELSEIF p_marks >= 60 THEN
+    SET v_grade = 'C';
+  ELSE
+    SET v_grade = 'F';
+  END IF;
+  SELECT p_name AS Student, p_marks AS Marks, v_grade AS Grade;
+END$$
+DELIMITER ;
+
+-- CALL example:
+-- CALL proc_grade('Rahul', 82);

@@ -1,0 +1,31 @@
+use shopDB;
+
+// sample data
+db.products.drop();
+db.products.insertMany([
+  { _id: 1, name: "Smartphone A", category: "electronics", price: 15000, stock: 25, featured: true },
+  { _id: 2, name: "Headphones B", category: "electronics", price: 1200, stock: 0, featured: false },
+  { _id: 3, name: "Notebook", category: "stationery", price: 50, stock: 100, featured: false },
+  { _id: 4, name: "Mechanical Keyboard", category: "electronics", price: 4000, stock: 5, featured: true },
+  { _id: 5, name: "Pen Pack", category: "stationery", price: 40, stock: 0, featured: false }
+]);
+
+// $and : electronics AND price < 5000
+db.products.find({ $and: [ { category: "electronics" }, { price: { $lt: 5000 } } ] });
+
+// $or : either electronics OR stock = 0
+db.products.find({ $or: [ { category: "electronics" }, { stock: 0 } ] });
+
+// $nor : neither electronics nor featured
+db.products.find({ $nor: [ { category: "electronics" }, { featured: true } ] });
+
+// $not : price NOT greater than 100 (i.e., price <= 100)
+db.products.find({ price: { $not: { $gt: 100 } } });
+
+// Combined complex example: featured OR (stationery AND in stock)
+db.products.find({
+  $or: [
+    { featured: true },
+    { $and: [ { category: "stationery" }, { stock: { $gt: 0 } } ] }
+  ]
+});

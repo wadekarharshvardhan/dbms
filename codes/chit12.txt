@@ -1,0 +1,90 @@
+// Chit 12 — Single complete MongoDB MapReduce script
+// Run in mongosh
+
+// --- 0. Switch / create DB ---
+use mapreduce_lab;
+
+// --- 1. Prepare sample sales collection (for sales_by_store) ---
+db.sales.drop();
+db.sales.insertMany([
+  { _id: 1, date: ISODate("2025-09-02"), store: "S1", amount: 1200, items: 3 },
+  { _id: 2, date: ISODate("2025-09-10"), store: "S1", amount: 4000, items: 7 },
+  { _id: 3, date: ISODate("2025-10-01"), store: "S2", amount: 2300, items: 4 },
+  { _id: 4, date: ISODate("2025-10-15"), store: "S1", amount: 1500, items: 2 },
+  { _id: 5, date: ISODate("2025-10-20"), store: "S2", amount: 3200, items: 6 },
+  { _id: 6, date: ISODate("2025-10-25"), store: "S3", amount: 5000, items: 10 }
+]);
+
+// --- MapReduce A: total sales per store ---
+// map: emit(store, amount)
+// reduce: sum amounts
+var mapSales = function() {
+  if (this.store && this.amount) emit(this.store, this.amount);
+};
+
+var reduceSales = function(key, values) {
+  return Array.sum(values);
+};
+
+// Output results to collection "sales_by_store"
+db.sales.mapReduce(mapSales, reduceSales, { out: "sales_by_store" });
+
+// Show sorted results
+print("=== sales_by_store (total revenue per store) ===");
+db.sales_by_store.find().sort({ value: -1 }).forEach(doc => printjson(doc));
+
+
+// --- 2. Prepare sample reviews collection (for word count) ---
+db.reviews.drop();
+db.reviews.insertMany([
+  { _id:1, product: "Smartphone A", text: "Good battery life and a bright screen" },
+  { _id:2, product: "Smartphone A", text: "Battery is excellent but camera is average" },
+  { _id:3, product: "Headphone B", text: "Sound quality good and comfortable for long use" },
+  { _id:4, product: "Smartphone A", text: "Excellent screen and good performance" },
+  { _id:5, product: "Headphone B", text: "Comfortable, strong bass and good sound" }
+]);
+
+// --- MapReduce B: word frequency across reviews ---
+// map: split text into words, emit(word, 1)
+// reduce: sum counts
+var mapWords = function() {
+  if (!this.text) return;
+  // Normalize to lowercase, extract words (alphanumeric)
+  var words = this.text.toLowerCase().match(/\w+/g);
+  if (!words) return;
+  words.forEach(function(w) { emit(w, 1); });
+};
+
+var reduceWords = function(key, values) {
+  return Array.sum(values);
+};
+
+// Option: filter stopwords (we'll remove common stopwords in a finalize step)
+var finalizeWord = function(key, reducedValue) {
+  return reducedValue; // keep it simple; you can post-process to remove stopwords
+};
+
+// Output to "word_count"
+db.reviews.mapReduce(mapWords, reduceWords, { out: "word_count", finalize: finalizeWord });
+
+// Show top 20 words by frequency
+print("=== word_count (top words) ===");
+db.word_count.find().sort({ value: -1 }).limit(20).forEach(doc => printjson(doc));
+
+
+// --- 3. Extra: demonstrate querying mapReduce outputs ---
+// Total revenue across all stores (aggregate on mapReduce output)
+var totalRevenue = db.sales_by_store.aggregate([
+  { $group: { _id: null, total: { $sum: "$value" } } }
+]).toArray();
+print("Total revenue across all stores:", totalRevenue.length ? totalRevenue[0].total : 0);
+
+// Top store by revenue (from sales_by_store)
+var topStore = db.sales_by_store.find().sort({ value: -1 }).limit(1).toArray();
+if (topStore.length) print("Top store:", topStore[0]._id, "Revenue:", topStore[0].value);
+
+// Example: find frequency of a specific word, e.g., "good"
+var goodCount = db.word_count.findOne({ _id: "good" });
+print("Frequency of word 'good':", goodCount ? goodCount.value : 0);
+
+// --- End of script ---

@@ -1,0 +1,102 @@
+Chit No: 16 - MySQL Connectivity (Python)
+Prerequisites
+Install the MySQL connector library:
+pip install mysql-connector-python
+Create the table in your MySQL database:
+CREATE DATABASE IF NOT EXISTS companydb;
+USE companydb;
+CREATE TABLE Emp (
+    empId INT PRIMARY KEY,
+    empName VARCHAR(50),
+    empSal INT,
+    empDeptId INT
+);
+Python Program (app_mysql.py)
+import mysql.connector
+from mysql.connector import Error
+
+def create_connection():
+    try:
+        connection = mysql.connector.connect(
+            host='localhost',
+            database='companydb',
+            user='root',
+            password='your_password' # <-- CHANGE THIS
+        )
+        if connection.is_connected():
+            print("Connected to MySQL database!")
+            return connection
+    except Error as e:
+        print(f"Error while connecting to MySQL: {e}")
+        return None
+
+def add_employee(conn, emp_id, name, salary, dept_id):
+    print(f"Adding employee {emp_id}...")
+    cursor = conn.cursor()
+    query = "INSERT INTO Emp (empId, empName, empSal, empDeptId) VALUES (%s, %s, %s, %s)"
+    try:
+        cursor.execute(query, (emp_id, name, salary, dept_id))
+        conn.commit()
+        print("Employee added.")
+    except Error as e:
+        print(f"Error: {e}")
+        conn.rollback()
+    finally:
+        cursor.close()
+
+def get_employee(conn, emp_id):
+    print(f"Finding employee {emp_id}...")
+    cursor = conn.cursor()
+    query = "SELECT * FROM Emp WHERE empId = %s"
+    try:
+        cursor.execute(query, (emp_id,))
+        record = cursor.fetchone()
+        if record:
+            print(f"Found: {record}")
+        else:
+            print("Employee not found.")
+    except Error as e:
+        print(f"Error: {e}")
+    finally:
+        cursor.close()
+
+def edit_employee_salary(conn, emp_id, new_salary):
+    print(f"Editing employee {emp_id}...")
+    cursor = conn.cursor()
+    query = "UPDATE Emp SET empSal = %s WHERE empId = %s"
+    try:
+        cursor.execute(query, (new_salary, emp_id))
+        conn.commit()
+        print(f"{cursor.rowcount} row(s) updated.")
+    except Error as e:
+        print(f"Error: {e}")
+        conn.rollback()
+    finally:
+        cursor.close()
+
+def delete_employee(conn, emp_id):
+    print(f"Deleting employee {emp_id}...")
+    cursor = conn.cursor()
+    query = "DELETE FROM Emp WHERE empId = %s"
+    try:
+        cursor.execute(query, (emp_id,))
+        conn.commit()
+        print(f"{cursor.rowcount} row(s) deleted.")
+    except Error as e:
+        print(f"Error: {e}")
+        conn.rollback()
+    finally:
+        cursor.close()
+
+if __name__ == "__main__":
+    conn = create_connection()
+    if conn:
+        add_employee(conn, 101, 'Ravi Kumar', 50000, 10)
+        get_employee(conn, 101)
+        edit_employee_salary(conn, 101, 55000)
+        get_employee(conn, 101)
+        delete_employee(conn, 101)
+        get_employee(conn, 101)
+        conn.close()
+        print("Connection closed.")
+

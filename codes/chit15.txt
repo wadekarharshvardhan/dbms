@@ -1,0 +1,39 @@
+-- Chit 15: Library + Library_Audit
+
+DROP TABLE IF EXISTS Library_Audit;
+DROP TABLE IF EXISTS Library;
+
+CREATE TABLE Library (
+  book_id INT PRIMARY KEY,
+  title VARCHAR(200),
+  author VARCHAR(200),
+  qty INT
+);
+
+CREATE TABLE Library_Audit (
+  audit_id INT AUTO_INCREMENT PRIMARY KEY,
+  old_book_id INT,
+  old_title VARCHAR(200),
+  old_author VARCHAR(200),
+  old_qty INT,
+  operation VARCHAR(10),
+  op_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DELIMITER $$
+CREATE TRIGGER trg_library_before_update
+BEFORE UPDATE ON Library
+FOR EACH ROW
+BEGIN
+  INSERT INTO Library_Audit(old_book_id, old_title, old_author, old_qty, operation)
+  VALUES (OLD.book_id, OLD.title, OLD.author, OLD.qty, 'UPDATE');
+END$$
+
+CREATE TRIGGER trg_library_before_delete
+BEFORE DELETE ON Library
+FOR EACH ROW
+BEGIN
+  INSERT INTO Library_Audit(old_book_id, old_title, old_author, old_qty, operation)
+  VALUES (OLD.book_id, OLD.title, OLD.author, OLD.qty, 'DELETE');
+END$$
+DELIMITER ;

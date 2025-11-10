@@ -1,0 +1,25 @@
+-- Chit 4: Queries
+
+-- 1. Insert few records (done above)
+-- 2. List employees belonging to department 30, 40, or 10
+SELECT * FROM Emp WHERE empDeptId IN (30,40,10);
+
+-- 3. Employees whose salary is between 10000 and 30000
+SELECT * FROM Emp WHERE empSal BETWEEN 10000 AND 30000;
+
+-- 4. Total number of employees
+SELECT COUNT(*) AS total_employees FROM Emp;
+
+-- 5. Average salary of each deptID
+SELECT empDeptId, AVG(empSal) AS avg_sal FROM Emp GROUP BY empDeptId;
+
+-- 6. Employee details in ascending order of salary
+SELECT * FROM Emp ORDER BY empSal ASC;
+
+-- 7. Highest-paid employee(s) overall
+SELECT * FROM Emp WHERE empSal = (SELECT MAX(empSal) FROM Emp);
+
+-- 8. Second-highest salary in the company
+SELECT MAX(empSal) AS second_highest FROM Emp WHERE empSal < (SELECT MAX(empSal) FROM Emp);
+-- Alternative (if ties): use DISTINCT and LIMIT:
+SELECT DISTINCT empSal FROM Emp ORDER BY empSal DESC LIMIT 1 OFFSET 1;
