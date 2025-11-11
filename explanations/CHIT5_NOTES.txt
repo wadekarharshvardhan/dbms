@@ -1,0 +1,101 @@
+
+CHIT 5 – CUSTOMER & ORDERS DATABASE NOTES (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This chit demonstrates how to manage customer and order data using relational database design.
+It shows:
+- One-to-Many relationship (One customer can have many orders)
+- JOIN operations to combine related tables
+- Aggregation (SUM) to calculate total amount spent
+- LEFT JOIN to identify customers with no orders
+- CROSS JOIN for generating all combinations and applying filters
+
+Used in real e-commerce, billing, shopping cart and invoice systems.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Drop existing tables if they exist.
+2. Create customer table with primary key.
+3. Create orders table with foreign key referring to customer_id.
+4. Insert sample customer and order data.
+5. Use JOIN to show customers with their orders.
+6. Use LEFT JOIN to show customers without orders.
+7. Use GROUP BY to find total spending per customer.
+8. Use CROSS JOIN to show all customer-order pairs and filter conditions.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- customer(customer_id) is PRIMARY KEY → uniquely identifies each customer.
+- orders(customer_id) is FOREIGN KEY → ensures each order belongs to a valid customer.
+- JOIN (USING / ON) → connects both tables based on matching customer_id.
+- LEFT JOIN → keeps all customers even if they have no orders.
+- GROUP BY + SUM → calculates total money spent by each customer.
+- CROSS JOIN → forms all combinations, then filtered by condition.
+
+4) SIMPLE RELATIONAL DIAGRAM (DRAW IN EXAM):
+
+   customer                         orders
+-----------------           -------------------------
+customer_id (PK)   <------  customer_id (FK)
+first_name                   order_id (PK)
+                            amount
+
+This shows: One customer → multiple orders
+
+5) CODE EXPLANATION (LINE BY LINE):
+
+CREATE TABLE customer (...);
+→ Creates table for storing customer id and name.
+
+CREATE TABLE orders (... FOREIGN KEY (customer_id) REFERENCES customer(customer_id));
+→ Orders table references customer table to maintain relationship.
+
+INSERT INTO customer / INSERT INTO orders;
+→ Inserts sample data.
+
+SELECT ... FROM customer JOIN orders USING(customer_id);
+→ USING works when column name is same in both tables.
+→ Displays each order with customer name.
+
+SELECT c.customer_id, c.first_name FROM customer c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_id IS NULL;
+→ LEFT JOIN keeps customers even when they have no orders.
+→ WHERE o.order_id IS NULL filters customers with zero orders.
+
+SELECT c.customer_id, c.first_name, COALESCE(SUM(o.amount),0) AS total_spent
+FROM customer c LEFT JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.first_name;
+→ SUM calculates total spending.
+→ COALESCE converts NULL to 0 for customers with no orders.
+
+SELECT c.first_name, o.order_id, o.amount
+FROM customer c CROSS JOIN orders o
+WHERE o.amount > 600;
+→ CROSS JOIN creates all combinations; WHERE filters based on amount.
+
+6) WHY EACH FUNCTION IS USED:
+PRIMARY KEY → makes each customer or order unique.
+FOREIGN KEY → ensures an order must belong to a real existing customer.
+JOIN → combines related records.
+LEFT JOIN → finds unmatched data (customers with no orders).
+GROUP BY → summarizes data per customer.
+SUM() → calculates total order amount.
+COALESCE() → replaces NULL values for meaningful output.
+
+7) COMMON VIVA QUESTIONS:
+Q: What relationship exists between Customer and Orders?
+A: One-to-Many (one customer can have many orders).
+Q: Why use LEFT JOIN?
+A: To include customers even if they have not placed any orders.
+Q: What does COALESCE do?
+A: Converts NULL values to a specified value (e.g., 0).
+Q: Why use GROUP BY?
+A: To calculate totals per customer.
+
+8) MODIFICATION EXAMPLE (FOR EXTERNAL):
+Add a new order:
+INSERT INTO orders VALUES (103, 900, 2);
+
+9) FINAL SUMMARY:
+This program models real-world billing by linking customers to their orders.
+JOIN and GROUP BY queries are used to display order details and spending summaries,
+while LEFT JOIN helps identify customers who have not placed any orders.

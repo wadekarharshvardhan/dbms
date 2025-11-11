@@ -1,0 +1,85 @@
+
+CHIT 4 – SQL QUERIES ON EMP TABLE (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This chit focuses on performing different types of SELECT queries on the Emp table.
+It demonstrates:
+- Filtering rows using WHERE
+- Using IN and BETWEEN conditions
+- Aggregation using COUNT() and AVG()
+- Ordering results with ORDER BY
+- Finding highest and second-highest salaries
+
+Used in real database reporting, HR dashboards, and payroll analytics.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Retrieve employees belonging to certain departments.
+2. Filter employee salaries in a specific range.
+3. Count total employees in the company.
+4. Calculate average salary per department.
+5. Sort employees by salary.
+6. Identify employee(s) with highest salary.
+7. Identify second highest salary using subquery.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- WHERE is used to filter rows.
+- IN checks for multiple possible matches.
+- BETWEEN checks value in a numeric range.
+- COUNT(*) counts total rows.
+- AVG() finds mean salary.
+- ORDER BY sorts results.
+- Subquery helps find highest and second highest values.
+
+4) CODE EXPLANATION (LINE BY LINE):
+
+SELECT * FROM Emp WHERE empDeptId IN (30,40,10);
+→ Shows all employees who belong to any of the listed departments.
+
+SELECT * FROM Emp WHERE empSal BETWEEN 10000 AND 30000;
+→ Filters employees whose salaries fall within the given range.
+
+SELECT COUNT(*) AS total_employees FROM Emp;
+→ Counts total number of employees in the table.
+
+SELECT empDeptId, AVG(empSal) AS avg_sal FROM Emp GROUP BY empDeptId;
+→ Finds average salary for each department.
+
+SELECT * FROM Emp ORDER BY empSal ASC;
+→ Displays employees sorted by salary (lowest to highest).
+
+SELECT * FROM Emp WHERE empSal = (SELECT MAX(empSal) FROM Emp);
+→ Finds the employee(s) having the highest salary.
+
+SELECT MAX(empSal) FROM Emp WHERE empSal < (SELECT MAX(empSal) FROM Emp);
+→ Finds the second highest salary.
+
+Alternative:
+SELECT DISTINCT empSal FROM Emp ORDER BY empSal DESC LIMIT 1 OFFSET 1;
+→ Shows second highest salary (handling duplicates).
+
+5) WHY EACH FUNCTION IS USED:
+IN → Used when we want to match multiple possible values.
+BETWEEN → Used to check if value is within a numeric range.
+COUNT() → Used for total record count.
+AVG() → Used for analytic reporting (average salary).
+ORDER BY → Used to sort data meaningfully.
+MAX() → Used to find the highest salary.
+Subquery → Used for comparing values inside the same table.
+
+6) COMMON VIVA QUESTIONS:
+Q: Difference between IN and OR?
+A: IN is cleaner and faster when checking multiple values.
+Q: Why GROUP BY is needed with AVG()?
+A: Because AVG is calculated per group (here, per department).
+Q: What is subquery?
+A: A query inside another query.
+Q: How to find second highest salary?
+A: Use MAX with a condition OR ORDER BY with LIMIT and OFFSET.
+
+7) MODIFICATION EXAMPLE (FOR EXTERNAL):
+Add condition to show employees in IT department only:
+SELECT * FROM Emp WHERE empDeptId = 10;
+
+8) FINAL SUMMARY:
+This chit focuses on data retrieval techniques in SQL.
+It shows how to filter, group, sort, and identify highest or second highest salary using functions and subqueries, which are essential in reporting and analysis.

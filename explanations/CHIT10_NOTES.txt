@@ -1,0 +1,91 @@
+
+CHIT 10 – MONGODB CRUD OPERATIONS ON CUSTOMERS (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This program demonstrates the basic CRUD operations in MongoDB:
+- CREATE (insertOne, insertMany, save)
+- READ (find with projections)
+- UPDATE (updateOne, updateMany, $inc)
+- DELETE (deleteOne, deleteMany)
+
+It is used in real applications for maintaining user profiles, managing reward points, updating contact information, and removing inactive customers.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Select database: use shopDB.
+2. Create customers collection and insert sample records.
+3. Insert a new customer using insertOne.
+4. Retrieve specific fields using projection.
+5. Update a customer’s rewards using $inc.
+6. Modify an existing document by reading it, editing fields, and saving using save().
+7. Use save() again to insert a new customer if _id does not exist (upsert behavior).
+8. Delete a customer using deleteOne.
+9. Display final records in formatted output.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- insertOne / insertMany → Add documents.
+- find({},{}) → Read data with only selected fields.
+- updateOne → Change specific fields.
+- $inc → Increase numeric values.
+- save() → Replaces entire document if _id exists, inserts if _id not found.
+- deleteOne → Removes one matching document.
+
+4) SAMPLE DOCUMENT STRUCTURE:
+
+{
+  _id: 101,
+  name: "Asha",
+  email: "asha@example.com",
+  rewards: 120
+}
+
+5) CODE EXPLANATION (LINE BY LINE):
+
+db.customers.insertOne({ _id: 103, name: "Meera", email: "meera@example.com", rewards: 0 });
+→ Adds a new customer record.
+
+db.customers.find({}, { name: 1, rewards: 1, _id: 1 });
+→ Displays only name, rewards, and id (projection).
+
+db.customers.updateOne({ _id: 102 }, { $inc: { rewards: 30 } });
+→ Increases reward points by 30 for customer with id 102.
+
+var c = db.customers.findOne({ _id: 101 });
+→ Fetches a document for editing.
+
+c.phone = "9876543210"; c.rewards = 200;
+db.customers.save(c);
+→ save() replaces the document (full update).
+
+db.customers.save({ _id: 200, name: "NewUser", email: "newuser@example.com", rewards: 10 });
+→ If _id = 200 does not exist, save() inserts a new document (upsert behavior).
+
+db.customers.deleteOne({ _id: 103 });
+→ Deletes one customer document.
+
+db.customers.find().pretty();
+→ Displays formatted final output.
+
+6) WHY EACH FUNCTION IS USED:
+insertOne → To add a single new document.
+find() → To read data from the collection.
+Projection → To limit displayed fields and improve clarity.
+updateOne + $inc → Modify only a specific value without rewriting the whole document.
+save() → Used when replacing or upserting entire documents.
+deleteOne → Remove specific customer data.
+
+7) COMMON VIVA QUESTIONS:
+Q: What is the difference between insertOne and save?
+A: insertOne always adds new document; save replaces if _id exists, inserts if not.
+Q: What is projection?
+A: Selecting only certain fields while displaying query result.
+Q: What does $inc do?
+A: Increases a numeric field value.
+Q: What is pretty() used for?
+A: To format output in readable form.
+
+8) MODIFICATION EXAMPLE (FOR STRICT EXTERNAL):
+Increase rewards of customers who have 0 rewards:
+db.customers.updateMany({ rewards: 0 }, { $inc: { rewards: 20 } });
+
+9) FINAL SUMMARY:
+This chit demonstrates CRUD operations in MongoDB. It shows how to insert, read, update, and delete customer records using practical commands. The save() function is highlighted for its upsert behavior, making the database flexible for profile management.

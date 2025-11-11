@@ -1,0 +1,78 @@
+
+CHIT 9 – MONGODB QUERY OPERATORS ($and, $or, $nor, $not) (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This chit demonstrates how to filter documents in MongoDB using logical operators.
+It shows:
+- $and → all conditions must be true
+- $or → at least one condition must be true
+- $nor → none of the conditions should be true
+- $not → negation (condition must not match)
+
+Used in real systems for product filtering, searching, and recommendation engines.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Select database shopDB.
+2. Insert product records with category, price, stock, and featured fields.
+3. Run different queries using logical operators to filter products.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- MongoDB stores data in JSON-like documents.
+- Logical operators help filter collection data based on multiple conditions.
+- Query structure: db.collection.find({ condition });
+
+4) SIMPLE FIELD TABLE EXAMPLE:
+
+_id | name                  | category     | price | stock | featured
+----|-----------------------|-------------|-------|-------|---------
+1   | Smartphone A          | electronics | 15000 | 25    | true
+2   | Headphones B          | electronics | 1200  | 0     | false
+3   | Notebook              | stationery  | 50    | 100   | false
+4   | Mechanical Keyboard   | electronics | 4000  | 5     | true
+5   | Pen Pack              | stationery  | 40    | 0     | false
+
+5) CODE EXPLANATION (LINE BY LINE):
+
+db.products.find({ $and: [ { category: "electronics" }, { price: { $lt: 5000 } } ] });
+→ Select products that are electronics AND cost less than 5000.
+
+db.products.find({ $or: [ { category: "electronics" }, { stock: 0 } ] });
+→ Select products that are electronics OR are out of stock.
+
+db.products.find({ $nor: [ { category: "electronics" }, { featured: true } ] });
+→ Select products that are neither electronics NOR featured.
+
+db.products.find({ price: { $not: { $gt: 100 } } });
+→ Select products whose price is NOT greater than 100 (price ≤ 100).
+
+db.products.find({
+  $or: [
+    { featured: true },
+    { $and: [ { category: "stationery" }, { stock: { $gt: 0 } } ] }
+  ]
+});
+→ Select products that are featured OR stationery items that are in stock.
+
+6) WHY EACH OPERATOR IS USED:
+$and → combine multiple required conditions.
+$or → allow any one of multiple conditions.
+$nor → exclude documents matching any given conditions.
+$not → invert / reject a condition result.
+
+7) COMMON VIVA QUESTIONS:
+Q: What is MongoDB?
+A: MongoDB is a NoSQL database that stores data in JSON-like documents.
+Q: Difference between $and and $or?
+A: $and requires all conditions true, $or requires only one.
+Q: When do we use $nor?
+A: When we want to filter documents that do not satisfy any listed condition.
+Q: Use of $not?
+A: To return documents where the condition is not true.
+
+8) MODIFICATION EXAMPLE (FOR EXTERNAL):
+Find electronics items that are out of stock:
+db.products.find({ $and: [ { category: "electronics" }, { stock: 0 } ] });
+
+9) FINAL SUMMARY:
+This chit shows how MongoDB logical operators help filter data.
+$and, $or, $nor, and $not allow flexible searching needed in product catalogs and real-time applications.

@@ -1,0 +1,94 @@
+
+CHIT 16 – MYSQL CONNECTIVITY USING PYTHON (Balanced + Notepad Version)
+
+1) CONCEPT / PURPOSE:
+This program connects Python to a MySQL database and performs CRUD:
+C → Create (insert)
+R → Read (select)
+U → Update (modify)
+D → Delete (remove)
+Used in login systems, student systems, inventory, examinations.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Import mysql.connector module.
+2. Establish connection to MySQL server.
+3. Create cursor object to execute SQL statements.
+4. Write functions:
+   a) add_student → INSERT record
+   b) get_student → SELECT record
+   c) update_student → UPDATE record
+   d) delete_student → DELETE record
+5. Call functions in main execution block.
+6. Close connection at the end.
+
+3) HANDWRITTEN NOTES SUMMARY:
+mysql.connector.connect() → connects to database.
+cursor.execute() → runs SQL query.
+commit() → permanently saves changes.
+fetchone()/fetchall() → retrieves query output.
+close() → closes DB connection.
+
+4) SIMPLE DIAGRAM (DRAW):
+
+Python Program  <---->  MySQL Database
+      via mysql.connector module
+
+students table example:
+roll | name   | dept
+-----|--------|------
+101  | Ravi   | CS
+
+5) CODE EXPLANATION (LINE BY LINE):
+
+import mysql.connector
+→ Imports MySQL connectivity module.
+
+conn = mysql.connector.connect(host="localhost", user="root", password="", database="collegeDB")
+→ Connects Python to MySQL.
+
+cur = conn.cursor()
+→ Creates cursor to execute SQL commands.
+
+INSERT INTO students VALUES(...)
+→ Adds new student record.
+
+SELECT * FROM students WHERE roll=...
+→ Retrieves record.
+
+UPDATE students SET dept=... WHERE roll=...
+→ Modifies department.
+
+DELETE FROM students WHERE roll=...
+→ Removes student.
+
+conn.commit()
+→ Saves modification permanently.
+
+conn.close()
+→ Ends connection safely.
+
+6) WHY EACH FUNCTION IS USED:
+connect() → Establish database communication.
+cursor() → Enables SQL statement execution.
+execute() → Runs SQL commands.
+commit() → Saves DML changes.
+fetchone()/fetchall() → Retrieve results.
+close() → Release resources.
+
+7) VIVA QUESTIONS:
+Q: Why do we use commit()?
+A: To permanently save changes like INSERT/UPDATE/DELETE.
+Q: What is cursor?
+A: Cursor is an object used to execute SQL queries.
+Q: What happens if commit() is not used?
+A: Changes will not be saved to the database.
+
+8) MODIFICATION EXAMPLE (FOR STRICT EXTERNAL):
+Add "marks" column and update marks:
+cur.execute("ALTER TABLE students ADD marks INT")
+cur.execute("UPDATE students SET marks=80 WHERE roll=101")
+conn.commit()
+
+9) FINAL SUMMARY:
+This chit shows how Python interacts with MySQL for CRUD operations.
+It demonstrates real application usage in academic & commercial systems.

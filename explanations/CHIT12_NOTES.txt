@@ -1,0 +1,91 @@
+
+CHIT 12 – MONGODB MAPREDUCE (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+MapReduce is used in MongoDB for large data processing. It works in two phases:
+- MAP: Extract key-value pairs from documents.
+- REDUCE: Combine values of same key.
+This chit demonstrates:
+A) Total sales per store.
+B) Word frequency (word count) from product reviews.
+
+Used in real-world analytics, log processing, text mining, and summarization.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Switch to database.
+2. Insert sample sales documents.
+3. Write map function → emit(store, amount).
+4. Write reduce function → sum all amounts for same store.
+5. Run mapReduce → output to new collection "sales_by_store".
+6. Insert product reviews.
+7. Write map function to split text into words → emit(word, 1).
+8. Reduce function sums counts for each word.
+9. Output to "word_count" collection.
+10. Query output collections for results.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- MAP → emits key-value pairs.
+- REDUCE → merges all values for same key.
+- mapReduce() → executes distributed processing.
+- Useful for summarization and text analytics.
+
+4) DIAGRAM (DRAW IN EXAM):
+
+MAP PHASE:
+doc1 → ("S1", 1200)
+doc2 → ("S1", 4000)
+doc3 → ("S2", 2300)
+
+REDUCE PHASE:
+"S1" → 1200 + 4000 = 5200
+"S2" → 2300
+
+OUTPUT:
+{ _id: "S1", value: 5200 }
+{ _id: "S2", value: 2300 }
+
+5) CODE EXPLANATION:
+
+var mapSales = function() {
+  emit(this.store, this.amount);
+};
+→ For each sale, output store and its sale amount.
+
+var reduceSales = function(key, values) {
+  return Array.sum(values);
+};
+→ Add all sales for the same store.
+
+db.sales.mapReduce(mapSales, reduceSales, { out: "sales_by_store" });
+→ Creates a new collection with total revenue per store.
+
+Word Count Map Function:
+Split text into words → emit(word, 1).
+
+Reduce Words:
+Sum 1s for each word → gives frequency.
+
+db.reviews.mapReduce(mapWords, reduceWords, { out: "word_count" });
+→ Stores result of word count.
+
+6) WHY EACH FUNCTION IS USED:
+emit() → Produces key-value pair output in map phase.
+Array.sum() → Helps sum values during reduce.
+mapReduce() → Runs both map and reduce logic.
+out: "collection" → Stores aggregated results for later use.
+
+7) VIVA QUESTIONS:
+Q: Difference between Aggregation and MapReduce?
+A: Aggregation is optimized pipeline; MapReduce is script-based and flexible.
+Q: Why use MapReduce?
+A: To process large datasets or custom text processing.
+Q: What does emit do?
+A: Emits key-value pairs for reduction.
+
+8) MODIFICATION EXAMPLE:
+Count reviews for product "Smartphone A":
+db.reviews.find({ product: "Smartphone A" });
+
+9) FINAL SUMMARY:
+MapReduce processes large data by splitting into mapping + reducing stages.
+It is useful for summarizing sales and analyzing text frequency.

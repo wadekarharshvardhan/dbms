@@ -1,0 +1,111 @@
+
+CHIT 1 – EMPLOYEE & BRANCH DATABASE NOTES (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This database is used in company HR systems to store:
+- Branch information
+- Employee information
+- Manager–Employee reporting structure
+It demonstrates:
+- Primary & Foreign Keys
+- Self-referencing relationship (manager is also an employee)
+- Generated column for full name
+- Index for faster search
+- Views for easier reporting
+- Role for read-only access
+- UNIQUE and CHECK constraints for data correctness
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Drop old tables if they exist.
+2. Create branch_master table for company branches.
+3. Create employee_master table for employee info.
+4. Add foreign key linking manager_id to emp_id (self join).
+5. Insert sample employee and branch data.
+6. Add generated column emp_name to combine first, middle, last names.
+7. Create index on emp_name for faster search.
+8. Create a view to show employee along with manager name.
+9. Create read-only role and grant access to the view.
+10. Create view to show managers and their number of direct reports.
+11. Add UNIQUE constraint to prevent duplicate employee entries in same department.
+12. Add CHECK constraint to restrict department values.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- Self Foreign Key: manager_id → emp_id (same table relationship).
+- Generated Column: auto-creates full name.
+- Index: speeds up searching by employee name.
+- View: virtual table, used for reporting and better readability.
+- Role: controls access and security.
+- UNIQUE: prevents duplicate person in same department.
+- CHECK: restricts data to valid departments only.
+
+4) SIMPLE DIAGRAM (DRAW IN EXAM):
+employee_master
+ emp_id | name | dept | manager_id
+         ↘________________________
+                    points to emp_id of another employee (self reference)
+
+5) CODE EXPLANATION (LINE BY LINE):
+
+DROP TABLE IF EXISTS ...;
+→ Removes existing tables to avoid duplication errors.
+
+CREATE TABLE branch_master(...);
+→ Stores branch id and name (branch_id is primary key → unique branch).
+
+CREATE TABLE employee_master(... FOREIGN KEY(manager_id) REFERENCES employee_master(emp_id) ON DELETE SET NULL);
+→ Stores employees. Manager is also an employee, forming a self join.
+→ ON DELETE SET NULL prevents deletion of employee if manager is removed.
+
+INSERT INTO branch_master / employee_master;
+→ Inserts example data.
+
+ALTER TABLE employee_master ADD COLUMN emp_name GENERATED ALWAYS AS (...);
+→ emp_name automatically forms full name (no manual update needed).
+
+CREATE INDEX idx_emp_name ON employee_master(emp_name);
+→ Speeds up searching employees by name.
+
+CREATE VIEW v_employee_details AS SELECT ... JOIN ...;
+→ Displays employee along with manager name.
+
+CREATE ROLE readonly_role; GRANT SELECT ON view TO readonly_role;
+→ Allows read-only access for limited users.
+
+CREATE VIEW v_manager_reports AS SELECT manager and COUNT of reports;
+→ Shows how many employees report to each manager.
+
+UNIQUE(first_name, middle, last_name, department);
+→ Prevents duplicate entries of same person in same department.
+
+CHECK(department IN ('IT','HR','Finance','Sales','Admin'));
+→ Only allows valid department names.
+
+6) WHY EACH FUNCTION IS USED:
+PRIMARY KEY → uniquely identifies each record.
+FOREIGN KEY → maintains employee-manager relationship.
+ON DELETE SET NULL → prevents accidental deletion of entire hierarchy.
+GENERATED COLUMN → avoids manually concatenating names.
+INDEX → increases search performance.
+VIEW → simplifies display for reporting.
+ROLE & GRANT → ensures controlled data access.
+UNIQUE → prevents duplicate data entry.
+CHECK → ensures data correctness.
+
+7) COMMON VIVA QUESTIONS:
+Q: Why use self foreign key?
+A: To model manager-employee hierarchy within the same table.
+Q: Why generated column?
+A: To automatically maintain full name without updating manually.
+Q: Why index?
+A: To make searching employees by name faster.
+Q: What is a view?
+A: A virtual table created from a SELECT query.
+Q: Why ON DELETE SET NULL?
+A: To avoid cascading deletion if manager is removed.
+
+8) MODIFICATION EXAMPLE (WHEN EXTERNAL SAYS "CHANGE SOMETHING"):
+INSERT INTO employee_master(emp_id, first_name, last_name, department, manager_id)
+VALUES (106, 'Vishal', 'Kale', 'IT', 101);
+
+9) FINAL SUMMARY:
+This program organizes employee records with proper hierarchy, fast searching, secure viewing, and strong data validation, making it suitable for real HR database systems.

@@ -1,0 +1,124 @@
+
+CHIT 6 – BORROWER & FINE DATABASE + STORED PROCEDURE (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This program is based on a library system where:
+- Borrower table stores book issue details.
+- Fine table stores fine records for late book returns.
+- A stored procedure calculates fine based on number of late days.
+
+It demonstrates:
+- Table creation with foreign key relationship
+- Inserting data
+- Using DATEDIFF to calculate days
+- Conditional logic (IF / ELSEIF)
+- Stored Procedure creation
+- Automatic update of borrower status
+- Inserting fine records when applicable
+
+Used in real world in library management, book issue-return systems, and fee calculation systems.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Drop existing tables to avoid duplication.
+2. Create Borrower table to store issue details.
+3. Create Fine table linked to Borrower through Roll_no (Foreign Key).
+4. Insert sample borrowing records.
+5. Create stored procedure proc_calculate_fine:
+    a. Find issue date for the given student and book.
+    b. Calculate number of days from issue date to today.
+    c. Apply fine rules based on number of days late.
+    d. Insert fine in Fine table if applicable.
+    e. Update Borrower status to 'R' (Returned).
+    f. Commit changes.
+6. Call procedure when a book is returned.
+
+3) HANDWRITTEN NOTES SUMMARY:
+Borrower → stores book issue info.
+Fine → stores fine amount charged to student.
+DATEDIFF() → calculates days difference.
+IF / ELSEIF → applies fine rules.
+Foreign Key → ensures fine belongs to a valid borrower.
+Status 'I' = Issued, 'R' = Returned.
+
+Fine Policy Example Used:
+- If returned on time → No fine.
+- If late 15–30 days → Rs 5/day.
+- If late more than 30 days → Rs 5/day for first 30 days + Rs 50/day beyond 30.
+
+4) SIMPLE DIAGRAM (DRAW IN EXAM):
+
+Borrower Table                Fine Table
+-------------------          ----------------------
+Roll_no (PK)          <--    Roll_no (FK)
+Name                          id (PK, auto)
+DateofIssue                   Date_fine
+NameofBook                    Amt
+Status
+
+5) CODE EXPLANATION (LINE BY LINE):
+
+CREATE TABLE Borrower (...);
+→ Stores student roll number, book name, date issued, and status.
+
+CREATE TABLE Fine (... FOREIGN KEY (Roll_no) REFERENCES Borrower(Roll_no));
+→ Ensures fine must belong to a valid borrower.
+
+INSERT INTO Borrower VALUES (...);
+→ Adds example records where books are issued.
+
+DELIMITER $$ CREATE PROCEDURE ...
+→ Starts procedure definition.
+
+DECLARE v_issue_date, v_days, v_fine;
+→ Temporary variables inside procedure.
+
+SELECT DateofIssue INTO v_issue_date ...
+→ Fetch issue date for given roll number and book.
+
+SET v_days = DATEDIFF(CURDATE(), v_issue_date);
+→ Calculates delay in returning book.
+
+IF v_days <= 0 THEN
+  v_fine = 0;
+ELSEIF v_days BETWEEN 15 AND 30 THEN
+  v_fine = v_days * 5;
+ELSEIF v_days > 30 THEN
+  v_fine = (30 * 5) + ((v_days - 30) * 50);
+END IF;
+→ Applies fine rules based on delay.
+
+INSERT INTO Fine (...) VALUES (...);
+→ Inserts fine record if applicable.
+
+UPDATE Borrower SET Status = 'R' ...
+→ Marks book as returned.
+
+COMMIT;
+→ Saves all changes permanently.
+
+6) WHY EACH FUNCTION IS USED:
+FOREIGN KEY → maintains proper linking of fine records to borrowers.
+DATEDIFF() → calculates number of days book was kept.
+IF / ELSEIF → applies different fine rules.
+INSERT → stores fine entries for record.
+UPDATE → changes status to returned.
+COMMIT → ensures all operations are saved safely.
+
+7) COMMON VIVA QUESTIONS:
+Q: Why is DATEDIFF used?
+A: To calculate the number of days between issue date and return date.
+Q: Why do we use stored procedure here?
+A: To automate fine calculation and ensure accuracy.
+Q: Why foreign key in Fine table?
+A: To make sure every fine belongs to an existing borrower.
+Q: Why update status to 'R'?
+A: To show that the book is returned and avoid double-charging.
+
+8) MODIFICATION EXAMPLE (FOR EXTERNAL):
+Add a new borrower record:
+INSERT INTO Borrower VALUES (3, 'Kunal', '2025-10-15', 'CN Textbook', 'I');
+
+9) FINAL SUMMARY:
+This program manages library book return and fine calculation.
+The stored procedure automates fine calculation based on days late,
+ensures record accuracy, and updates status correctly.

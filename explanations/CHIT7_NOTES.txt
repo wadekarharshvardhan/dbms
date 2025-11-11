@@ -1,0 +1,88 @@
+
+CHIT 7 – MERGE TWO ROLLCALL TABLES USING CURSOR (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This program demonstrates how to:
+- Merge two tables (new roll call and old roll call)
+- Use a CURSOR to process records one-by-one
+- Check if a record already exists before inserting
+- Maintain counts of inserted and skipped records
+
+This is used in real systems when new data must be merged without creating duplicates
+(example: attendance lists, updated student data, master data synchronization).
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Drop existing roll call tables if they exist.
+2. Create O_RollCall (old records) and N_RollCall (new records) tables.
+3. Insert sample records.
+4. Define a stored procedure merge_rollcall():
+   a. Declare cursor to read all records from N_RollCall.
+   b. For each row:
+        - If roll number does NOT exist in old table → INSERT into old table.
+        - Otherwise → increase skipped counter.
+   c. After all rows processed, return counts of inserted and skipped records.
+5. Call the procedure to merge data.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- CURSOR → reads rows one-by-one from a result set.
+- NOT EXISTS → prevents inserting duplicate records.
+- Counters (v_inserted, v_skipped) keep track of actions.
+- CONTINUE HANDLER → stops loop when cursor finishes.
+- Purpose: Safe merging without duplicates.
+
+4) SMALL DIAGRAM (DRAW IN EXAM):
+
+N_RollCall (New List)      →      O_RollCall (Final Master List)
+(1, A)                             (1, A) Inserted
+(2, B)                             (2, B_old) Exists → Skipped
+(3, C)                             (3, C) Inserted
+
+5) CODE EXPLANATION (LINE BY LINE):
+
+DECLARE cur CURSOR FOR SELECT rollno, name FROM N_RollCall;
+→ Defines cursor to fetch each new student.
+
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+→ When no more rows, mark loop as finished.
+
+OPEN cur; LOOP FETCH ...; END LOOP;
+→ Iterates through each student row.
+
+IF NOT EXISTS (SELECT 1 FROM O_RollCall WHERE rollno = v_roll) THEN
+   INSERT INTO O_RollCall ...;
+   SET v_inserted = v_inserted + 1;
+ELSE
+   SET v_skipped = v_skipped + 1;
+END IF;
+→ Insert only if student is not already present.
+
+SELECT CONCAT('Inserted: ', v_inserted), CONCAT('Skipped: ', v_skipped);
+→ Shows summary of merge action.
+
+6) WHY EACH FUNCTION IS USED:
+CURSOR → To process multi-row data step-by-step.
+NOT EXISTS → To avoid duplicate entries.
+CONTINUE HANDLER → Prevents cursor error and exits gracefully.
+INSERT → Adds new record to old RollCall.
+SET counters → Tracks merge results for reporting.
+
+7) COMMON VIVA QUESTIONS:
+Q: Why do we use a cursor here?
+A: Because we need to process records one-by-one and check conditions before inserting.
+Q: Why NOT EXISTS is used?
+A: To prevent inserting duplicate roll numbers.
+Q: What does CONTINUE HANDLER do?
+A: It handles end-of-data condition and stops the loop safely.
+Q: What is the purpose of counters?
+A: To track how many records were inserted and how many were skipped.
+
+8) MODIFICATION EXAMPLE (FOR STRICT EXTERNAL):
+Add one more student to new roll list:
+INSERT INTO N_RollCall VALUES (4, 'D');
+
+Then call again:
+CALL merge_rollcall();
+
+9) FINAL SUMMARY:
+This program merges two attendance lists using a cursor.
+It checks each new record, inserts only unique entries, and generates a report of inserted and skipped records.

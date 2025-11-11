@@ -1,0 +1,86 @@
+
+CHIT 11 – MONGODB AGGREGATION + INDEX (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This program shows:
+- How to insert sales data in MongoDB
+- How to create a compound index (store + date)
+- How to use aggregation pipeline for:
+  a) Monthly sales summary per store
+  b) Top stores by revenue in a date range
+
+Used in real business dashboards and analytics systems.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Use analyticsDB database.
+2. Insert multiple sales documents.
+3. Create compound index to speed up queries that filter by store and date.
+4. Apply aggregation pipeline:
+   - $project → extract year and month from date
+   - $group → sum revenue and items grouped by store & month
+   - $sort → show latest summary first
+5. Another aggregation to get top revenue stores in Oct 2025.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- Compound Index = index on more than one field (improves query performance).
+- Aggregation Pipeline processes data step-by-step.
+- $project → reshapes fields (extract year/month).
+- $group → applies sum/count operations.
+- $sort → controls result order.
+
+4) SAMPLE TABLE STRUCTURE (Understanding Only):
+
+_id | date       | store | amount | items
+----|------------|-------|--------|------
+1   | 2025-09-02 | S1    | 1200   | 3
+2   | 2025-09-10 | S1    | 4000   | 7
+3   | 2025-10-01 | S2    | 2300   | 4
+...
+
+5) CODE EXPLANATION:
+
+db.sales.createIndex({ store: 1, date: -1 });
+→ Creates compound index for faster searching by store & recent dates.
+
+db.sales.aggregate([
+  { $project: { year: { $year: "$date" }, month: { $month: "$date" }, amount: 1, store: 1 } },
+  { $group: { _id: { store, year, month }, totalSales: { $sum: "$amount" }, totalItems: { $sum: "$items" }, txCount: { $sum: 1 } } },
+  { $sort: { year: -1, month: -1 } }
+]);
+→ Gives monthly revenue summary.
+
+db.sales.aggregate([
+  { $match: { date: { $gte: ISODate("2025-10-01"), $lt: ISODate("2025-11-01") } } },
+  { $group: { _id: "$store", revenue: { $sum: "$amount" } } },
+  { $sort: { revenue: -1 } },
+  { $limit: 3 }
+]);
+→ Shows top 3 stores in October 2025.
+
+6) WHY EACH FUNCTION IS USED:
+createIndex → speeds up frequent queries on store and date.
+$project → derive year/month for grouping.
+$group → summarize revenue, items, count.
+$match → filter date range.
+$sort → highest sales first.
+$limit → restrict result to top stores.
+
+7) COMMON VIVA QUESTIONS:
+Q: What is a compound index?
+A: Index created on more than one field to improve query performance.
+Q: Why use $group in aggregation?
+A: To calculate totals such as revenue or item count.
+Q: What does $project do?
+A: It selects and computes fields like year/month.
+
+8) MODIFICATION EXAMPLE:
+Show only S1's monthly report:
+db.sales.aggregate([
+  { $match: { store: "S1" } },
+  { $project: { store: 1, amount: 1, year: { $year: "$date" }, month: { $month: "$date" } } },
+  { $group: { _id: { year: "$year", month: "$month" }, total: { $sum: "$amount" } } }
+]);
+
+9) FINAL SUMMARY:
+This chit demonstrates MongoDB indexing and aggregation for business analytics,
+helping summarize sales performance and identify best-performing stores.

@@ -1,0 +1,137 @@
+
+RUN COMMANDS CHEAT SHEET (For Viva & Practical)
+
+-------------------------------------------
+WHEN CODE IS MySQL (Tables, Queries, Views, Procedures, Triggers)
+-------------------------------------------
+
+1. Open MySQL:
+mysql -u root -p
+
+2. Select Database:
+USE database_name;
+
+3. Run SQL File:
+SOURCE filename.sql;
+
+4. Run Queries Directly:
+(Type and press Enter)
+
+5. When creating PROCEDURE / TRIGGER, always set delimiter:
+DELIMITER $$
+CREATE PROCEDURE proc_name(...)
+BEGIN
+   -- code
+END $$
+DELIMITER ;
+
+6. Call Stored Procedure:
+CALL proc_name(parameters);
+
+7. See All Tables:
+SHOW TABLES;
+
+8. See Table Structure:
+DESCRIBE table_name;
+
+9. Show Triggers:
+SHOW TRIGGERS;
+
+10. Show Procedures:
+SHOW PROCEDURE STATUS;
+
+
+
+-------------------------------------------
+WHEN CODE IS MongoDB (db.collection commands)
+-------------------------------------------
+
+1. Start Mongo Shell:
+mongosh
+(or: mongo)
+
+2. Select Database:
+use databaseName
+
+3. Insert Data:
+db.collection.insertOne({...})
+db.collection.insertMany([{...}, {...}])
+
+4. View Data:
+db.collection.find()
+db.collection.find().pretty()
+
+5. Update Data:
+db.collection.updateOne({condition}, {$set:{field:value}})
+
+6. Delete Data:
+db.collection.deleteOne({condition})
+
+7. Aggregation:
+db.collection.aggregate([...])
+
+8. MapReduce:
+db.collection.mapReduce(mapFunction, reduceFunction, {out: "outputCollection"})
+
+
+
+-------------------------------------------
+WHEN CODE IS Python + MongoDB
+-------------------------------------------
+
+1. Install Driver:
+pip install pymongo
+
+2. Run Python Script:
+python filename.py
+
+
+
+-------------------------------------------
+WHEN CODE IS Python + MySQL
+-------------------------------------------
+
+1. Install Driver:
+pip install mysql-connector-python
+
+2. Run Python Script:
+python filename.py
+
+
+
+-------------------------------------------
+QUICK IDENTIFICATION (How to know which environment to use)
+-------------------------------------------
+
+MySQL: Uses CREATE TABLE, SELECT, INSERT, TRIGGER, PROCEDURE keywords.
+Run using MySQL terminal.
+
+MongoDB: Uses db.collection.find(), insertOne(), updateOne().
+Run in mongosh shell.
+
+Python + DB: Contains "import pymongo" or "import mysql.connector".
+Run using python filename.py.
+
+
+
+-------------------------------------------
+VIVA READY ANSWERS (Say Exactly Like This)
+-------------------------------------------
+
+Q: How to run a stored procedure?
+A: I set delimiter, create procedure, reset delimiter, then call using CALL procedure_name().
+
+Q: How to run Mongo commands?
+A: I open mongosh, select database using 'use dbname', then run db.collection operations.
+
+Q: What is commit() used for?
+A: To permanently save changes in MySQL.
+
+Q: What is pretty() used for?
+A: To display MongoDB output in readable format.
+
+
+
+-------------------------------------------
+END OF NOTES
+-------------------------------------------

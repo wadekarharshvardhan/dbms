@@ -1,0 +1,105 @@
+
+CHIT 2 – UNIVERSITY / COLLEGE DATABASE NOTES (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This program demonstrates how to store and manage student and teacher records.
+It shows:
+- Table creation
+- Inserting records
+- Updating specific values
+- Aggregation (SUM, AVG)
+- Filtering and deletion
+- Finding highest salary per department
+
+Used in real systems for college administration, fee processing, and result management.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Drop existing tables if they exist.
+2. Create Student table with basic academic info.
+3. Create Teaches table with teacher and department info.
+4. Insert sample student and teacher data.
+5. Update department name of students where needed.
+6. Calculate highest average salary department.
+7. Delete teachers with very low salary.
+8. Calculate salary totals and averages by department.
+9. Increase salary of IT teachers.
+10. Show total students and average credits by department.
+11. Find highest-paid teacher in each department.
+12. Delete students with zero credits.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- Student table stores department, semester, year and credits.
+- Teaches table stores teacher name, salary, department.
+- GROUP BY is used to group data department-wise.
+- Aggregation functions:
+    SUM() → adds salary
+    AVG() → finds average salary
+    COUNT() → counts students/teachers
+- DELETE removes unwanted records with conditions.
+- UPDATE modifies selected records.
+
+4) CODE EXPLANATION (LINE BY LINE):
+
+DROP TABLE IF EXISTS Student; DROP TABLE IF EXISTS Teaches;
+→ Removes old tables to avoid duplication errors.
+
+CREATE TABLE Student (...);
+→ Creates student table (stud_id is primary key → unique student).
+
+CREATE TABLE Teaches (...);
+→ Creates teacher table (teacher_id is primary key).
+
+INSERT INTO Student / INSERT INTO Teaches;
+→ Adds initial data.
+
+UPDATE Student SET deptnm = 'IT' WHERE LOWER(deptnm) = 'comp';
+→ Fixes inconsistent department names (case-insensitive update).
+
+SELECT deptnm, AVG(salary) ... ORDER BY avg_salary DESC LIMIT 1;
+→ Finds the department with the highest average salary.
+
+DELETE FROM Teaches WHERE salary < 2000;
+→ Removes underpaid teaching records.
+
+SELECT deptnm, SUM(salary) FROM Teaches GROUP BY deptnm;
+→ Shows total salary per department.
+
+UPDATE Teaches SET salary = salary * 1.10 WHERE deptnm = 'IT';
+→ Salary increment of 10% for IT department teachers.
+
+SELECT deptnm, COUNT(*), AVG(credits) FROM Student GROUP BY deptnm;
+→ Shows total students and average credits per department.
+
+SELECT ... MAX(salary) ...
+→ Finds highest paid teacher in each department.
+
+DELETE FROM Student WHERE credits = 0;
+→ Removes inactive student entries.
+
+5) WHY EACH FUNCTION IS USED:
+PRIMARY KEY → ensures each student/teacher is uniquely identified.
+UPDATE → used to correct or modify existing records.
+GROUP BY → used for departmental reporting.
+AVG(), SUM(), COUNT(), MAX() → used for analytics.
+DELETE → removes unnecessary data.
+WHERE clause → filters specific rows.
+
+6) COMMON VIVA QUESTIONS:
+Q: Why do we use GROUP BY?
+A: To calculate totals or averages per department.
+Q: Difference between DELETE and DROP?
+A: DELETE removes rows, DROP removes the entire table.
+Q: Why use AVG()?
+A: To find the mean salary or credit score.
+Q: Why apply WHERE LOWER(deptnm)?
+A: To handle case-insensitive text comparison.
+Q: Why increment salary for IT dept?
+A: To adjust salary according to policy changes.
+
+7) MODIFICATION EXAMPLE (FOR EXTERNAL):
+Add a new student:
+INSERT INTO Student VALUES (4, 'Civil', 1, 'Karan', 2024, 16);
+
+8) FINAL SUMMARY:
+This program manages college data using insertion, updating, deletion and aggregation.
+It highlights how departments, students, and teachers are analyzed using GROUP BY and functions like AVG and SUM.

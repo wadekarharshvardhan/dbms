@@ -1,0 +1,81 @@
+
+CHIT 15 – LIBRARY & LIBRARY_AUDIT TRIGGER (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This chit demonstrates how triggers are used to maintain an audit log.
+Whenever a record in LIBRARY table is INSERTED, UPDATED, or DELETED,
+the TRIGGER automatically records the change in LIBRARY_AUDIT table.
+
+This is used in real systems to track:
+- Who modified the data
+- What change was done
+- When the change happened
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Create LIBRARY table to store book information.
+2. Create LIBRARY_AUDIT table to store change history.
+3. Create TRIGGER on LIBRARY table:
+   - Actions: AFTER INSERT, AFTER UPDATE, AFTER DELETE
+   - Insert details into LIBRARY_AUDIT table.
+4. Insert/Update/Delete a book in LIBRARY.
+5. Check LIBRARY_AUDIT to see logged history.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- Trigger executes automatically when event happens.
+- AFTER INSERT → log new values.
+- AFTER UPDATE → log old + new values if needed.
+- AFTER DELETE → log deleted record details.
+- Audit table keeps history for safety and accountability.
+
+4) SIMPLE DIAGRAM TO DRAW:
+
+LIBRARY (Main Table) ----> LIBRARY_AUDIT (History Log)
+       (Change Occurs)            (Trigger Writes Log)
+
+5) SAMPLE TRIGGER EXPLANATION (Line-by-Line):
+
+CREATE TRIGGER trg_library_insert
+AFTER INSERT ON LIBRARY
+FOR EACH ROW
+INSERT INTO LIBRARY_AUDIT(book_id, action, action_time)
+VALUES (NEW.book_id, 'INSERT', NOW());
+
+→ trg_library_insert = Trigger name.
+→ AFTER INSERT = Runs after new record is added.
+→ FOR EACH ROW = Trigger fires for each insert.
+→ NEW.book_id = Refers to the inserted book ID.
+→ 'INSERT' indicates the operation.
+→ NOW() stores timestamp.
+
+UPDATE Trigger Example:
+Uses OLD.column_name and NEW.column_name.
+
+DELETE Trigger Example:
+Uses OLD.column_name only.
+
+6) WHY EACH FUNCTION IS USED:
+Trigger → Automatically captures changes.
+NEW → Represents new inserted/updated data.
+OLD → Represents previous data (before update/delete).
+NOW() → Records time of change.
+Audit Table → Stores history for review and rollback.
+
+7) COMMON VIVA QUESTIONS:
+Q: What is a trigger?
+A: A trigger is a stored program that runs automatically when an event occurs on a table.
+Q: Difference between BEFORE and AFTER trigger?
+A: BEFORE allows validation; AFTER records final data.
+Q: When do we use audit triggers?
+A: When we want to maintain a change history for security and tracking.
+
+8) MODIFICATION EXAMPLE (FOR STRICT EXTERNAL):
+Add username field to audit:
+ALTER TABLE LIBRARY_AUDIT ADD user_name VARCHAR(50);
+
+Then change trigger:
+VALUES (NEW.book_id, 'INSERT', NOW(), USER());
+
+9) FINAL SUMMARY:
+This chit shows how triggers maintain a change log automatically.
+The audit table helps in tracking who changed what and when,
+which is essential for secure and professional database systems.

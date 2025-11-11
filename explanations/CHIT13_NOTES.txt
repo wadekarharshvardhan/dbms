@@ -1,0 +1,90 @@
+
+CHIT 13 – GRADE CALCULATION USING STORED PROCEDURE (Balanced Version)
+
+Original Code (for reference) fileciteturn2file0
+
+1) CONCEPT / PURPOSE:
+This stored procedure takes student name and marks as input and returns grade.
+It uses IF / ELSEIF conditions to decide grade range.
+Used in universities, result processing, grading systems.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Accept name and marks as input parameters.
+2. Declare variable v_grade.
+3. Check score:
+   - If marks >= 90 → Grade A
+   - Else if marks >= 75 → Grade B
+   - Else if marks >= 60 → Grade C
+   - Else → Grade F
+4. Display student name, marks and grade.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- Stored Procedure → reusable block of SQL code.
+- IN parameter → Input from user.
+- IF / ELSEIF → Decision making for grade.
+- SELECT output → returns final result.
+
+4) SIMPLE GRADE TABLE TO DRAW:
+
+Marks Range      Grade
+90 – 100         A
+75 – 89          B
+60 – 74          C
+Below 60         F
+
+5) LINE-BY-LINE CODE EXPLANATION:
+
+DELIMITER $$ 
+→ Changes command ending to $$ so MySQL can read the procedure body.
+
+CREATE PROCEDURE proc_grade(IN p_name VARCHAR(100), IN p_marks INT)
+→ Defines procedure with two input arguments: name & marks.
+
+DECLARE v_grade CHAR(1);
+→ Temporary variable for grade storage.
+
+IF p_marks >= 90 THEN
+→ Condition to assign A grade.
+
+ELSEIF p_marks >= 75 THEN
+→ If marks between 75 and 89 → Grade B.
+
+ELSEIF p_marks >= 60 THEN
+→ If marks between 60 and 74 → Grade C.
+
+ELSE
+→ All remaining values → Grade F.
+
+SELECT p_name AS Student, p_marks AS Marks, v_grade AS Grade;
+→ Displays final output.
+
+END $$ DELIMITER ;
+→ Ends procedure and restores delimiter.
+
+6) WHY EACH FUNCTION IS USED:
+IN parameter → Allows user to pass input.
+DECLARE → Creates a variable inside procedure.
+IF / ELSEIF → Checks conditions for grading.
+SELECT → Shows final result to user.
+
+7) VIVA QUESTIONS:
+Q: What is a stored procedure?
+A: A stored procedure is a pre-written SQL program stored in the database which can be executed repeatedly.
+
+Q: Why do we use IF / ELSEIF?
+A: To perform decision making based on marks range.
+
+Q: What happens if marks is negative?
+A: There is no validation in code, so result will fall into ELSE → F. (We can modify to handle errors if needed.)
+
+8) MODIFICATION EXAMPLE (FOR STRICT EXTERNAL):
+Assign grade 'O' (Outstanding) for marks > 95:
+Replace:
+IF p_marks >= 90 THEN
+With:
+IF p_marks > 95 THEN SET v_grade='O';
+ELSEIF p_marks >= 90 THEN SET v_grade='A';
+
+9) FINAL SUMMARY:
+This chit shows how to calculate grades using stored procedures and conditional logic.
+It takes input, checks mark range and displays the appropriate grade result.

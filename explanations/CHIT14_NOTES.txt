@@ -1,0 +1,91 @@
+
+CHIT 14 – MONGODB CONNECTIVITY USING PYTHON (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This program connects Python to MongoDB and performs CRUD operations:
+- C → Create (insert)
+- R → Read (find)
+- U → Update (modify)
+- D → Delete (remove)
+Used in real applications like student portals, attendance systems, and online forms.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Import MongoClient from pymongo.
+2. Create a connection to MongoDB server.
+3. Select database (universityDB).
+4. Select collection (students).
+5. Define functions for:
+   - add_student
+   - get_student
+   - edit_student_major
+   - delete_student
+6. Call functions in main block and print output.
+7. Close database connection.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- MongoDB stores data in JSON-like documents.
+- MongoClient() → connects Python to MongoDB.
+- db['collection_name'] → selects a collection.
+- insert_one() → add record
+- find_one() → retrieve record
+- update_one() → modify record
+- delete_one() → remove record
+
+4) SIMPLE DIAGRAM (DRAW IN EXAM):
+
+Python Code  ←→  MongoDB Server
+ via MongoClient()
+
+students collection example:
+{ _id: 101, name: "Ravi Kumar", major: "Physics" }
+
+5) CODE EXPLANATION (LINE BY LINE):
+
+from pymongo import MongoClient
+→ Imports MongoDB connector.
+
+client = MongoClient('mongodb://localhost:27017/')
+→ Connects to MongoDB running on local machine.
+
+db = client['universityDB']
+collection = db['students']
+→ Selects database and collection.
+
+insert_one({"_id": id, "name": name, "major": major})
+→ Adds student document.
+
+find_one({"_id": id})
+→ Retrieves student based on ID.
+
+update_one({condition}, { $set: { field: value } })
+→ Modifies student record.
+
+delete_one({"_id": id})
+→ Removes student record.
+
+client.close()
+→ Closes connection safely.
+
+6) WHY EACH FUNCTION IS USED:
+MongoClient → Establish database connection.
+insert_one → Create a new student record.
+find_one → Read and display student information.
+update_one → Change major or other details.
+delete_one → Remove a student from records.
+
+7) COMMON VIVA QUESTIONS:
+Q: What is MongoDB?
+A: A NoSQL database that stores data in documents.
+Q: What is MongoClient() used for?
+A: To connect Python program to MongoDB.
+Q: Difference between insert_one and update_one?
+A: insert_one adds new document, update_one modifies existing one.
+
+8) MODIFICATION EXAMPLE (FOR STRICT EXTERNAL):
+Add GPA field to student:
+collection.update_one({"_id": 101}, {"$set": {"gpa": 9.1}})
+
+9) FINAL SUMMARY:
+This chit shows how Python communicates with MongoDB to perform CRUD operations.
+It forms the base for real application development like student management systems.
+

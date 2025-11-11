@@ -1,0 +1,106 @@
+
+CHIT 3 – EMP & DEPT DATABASE NOTES (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This program creates a simple company structure where:
+- Departments are stored in Dept table.
+- Employees are stored in Emp table.
+- Each employee belongs to one department (Foreign Key).
+This demonstrates:
+- Table creation with constraints
+- Primary & Foreign Key relationships
+- Inserting records
+- Creating an index for faster name search
+- Using JOIN to connect employees with their departments
+- Aggregation (COUNT, SUM) to report department-level information
+- Updating records (salary raise)
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Drop existing tables if any exist.
+2. Create Dept table to store department details.
+3. Create Emp table to store employee details with salary and department reference.
+4. Insert few Department records.
+5. Insert few Employee records.
+6. Create an index on empName to improve search performance.
+7. Retrieve employee count and total salary per department using JOIN and GROUP BY.
+8. Create a view to display employee details along with department info.
+9. Update salaries for employees in a particular department (IT).
+
+3) HANDWRITTEN NOTES SUMMARY:
+- Dept(deptId) is Primary Key.
+- Emp(empId) is Primary Key.
+- empDeptId is Foreign Key → Links Emp to Dept.
+- CHECK(empSal >= 0) ensures salary cannot be negative.
+- Index on empName improves lookup performance.
+- GROUP BY is used for department-level summary.
+- View (v_emp_dept) simplifies reporting.
+
+4) SIMPLE DIAGRAM (DRAW IN EXAM):
+
+ Dept Table               Emp Table
+------------          ---------------------
+deptId (PK)   <------   empDeptId (FK)
+deptName                 empId (PK)
+deptLoc                  empName
+                         empSal
+
+This shows one department can have multiple employees.
+
+5) CODE EXPLANATION (LINE BY LINE):
+
+DROP TABLE IF EXISTS Emp; DROP TABLE IF EXISTS Dept;
+→ Removes old tables to avoid redefinition conflicts.
+
+CREATE TABLE Dept (...);
+→ Stores department ID, name, and location.
+→ deptLoc is UNIQUE → no two departments can share same location.
+
+CREATE TABLE Emp (... FOREIGN KEY(empDeptId) REFERENCES Dept(deptId));
+→ Stores employee data.
+→ empSal has CHECK constraint to prevent negative salary.
+→ empDeptId links employee to department.
+
+INSERT INTO Dept VALUES (...);
+INSERT INTO Emp VALUES (...);
+→ Adds example departments and employees.
+
+CREATE INDEX idx_empName ON Emp(empName);
+→ Improves search speed when searching employee by name.
+
+SELECT d.deptId, d.deptName, COUNT(e.empId), SUM(e.empSal) ...
+→ Shows number of employees and total salary per department.
+
+CREATE VIEW v_emp_dept AS SELECT ...
+→ Simplifies employee-department reporting using JOIN.
+
+UPDATE Emp SET empSal = empSal * 1.05 WHERE empDeptId = (SELECT deptId FROM Dept WHERE deptName = 'IT');
+→ Gives 5% salary raise to IT employees.
+
+6) WHY EACH FUNCTION IS USED:
+PRIMARY KEY → uniquely identifies each record.
+FOREIGN KEY → ensures employees must belong to a valid department.
+CHECK(empSal >= 0) → prevents incorrect salary entry.
+INDEX(empName) → speeds up searching by employee name.
+GROUP BY → used to calculate department-wise totals.
+VIEW → makes data reading easier and prevents complex repeated JOINs.
+
+7) COMMON VIVA QUESTIONS:
+Q: Why is Foreign Key used?
+A: To maintain relationship between employee and department.
+Q: Why use CHECK constraint on salary?
+A: To prevent invalid negative salary values.
+Q: What does index do?
+A: It speeds up searching for employee names.
+Q: Why create a view?
+A: To simplify repeated JOIN queries.
+Q: Why GROUP BY in the query?
+A: To show report department-wise.
+
+8) MODIFICATION EXAMPLE (FOR EXTERNAL):
+Add a new employee:
+INSERT INTO Emp VALUES (4, 'Neha', 25000, 10);
+
+9) FINAL SUMMARY:
+This program builds a small employee-department relational database.
+It ensures valid data using constraints, improves performance with indexing,
+and simplifies reporting using views and GROUP BY queries.

@@ -1,0 +1,80 @@
+
+CHIT 17 – SALARY HIKE + VALIDATION + AUDIT TRIGGER (Balanced Version)
+
+1) CONCEPT / PURPOSE:
+This program demonstrates:
+- Updating employee salary based on department.
+- Using a TRIGGER to log salary changes.
+- Preventing invalid salary values using validation.
+Used in real HR payroll systems to maintain secure records.
+
+2) ALGORITHM (STEP-BY-STEP):
+1. Create EMP table with employee details.
+2. Create EMP_AUDIT table to store change logs.
+3. Create a TRIGGER that records old and new salary whenever salary is updated.
+4. Write a procedure hike_salary(dept, percent):
+   - Increase salary of employees in given department.
+   - Validate: Salary must not drop below minimum limit.
+5. Execute procedure & check audit records.
+
+3) HANDWRITTEN NOTES SUMMARY:
+- TRIGGER runs automatically → logs old & new salary.
+- Procedure → reusable code to apply hike percentage.
+- Validation → prevents incorrect salary updates.
+- Audit table → keeps proof/history of changes.
+
+4) SIMPLE DIAGRAM (DRAW IN EXAM):
+
+ EMP (Main Data)  ---->  EMP_AUDIT (Salary Change Log)
+   (UPDATE)                  (Trigger Inserts Record)
+
+5) CODE EXPLANATION (LINE BY LINE):
+
+CREATE TABLE emp(... salary DECIMAL(10,2), dept VARCHAR(20));
+→ Stores employee details & salary.
+
+CREATE TABLE emp_audit(... old_salary, new_salary, change_time);
+→ Stores salary change history.
+
+CREATE TRIGGER trg_salary_update
+AFTER UPDATE ON emp
+FOR EACH ROW
+INSERT INTO emp_audit(emp_id, old_salary, new_salary, change_time)
+VALUES (OLD.emp_id, OLD.salary, NEW.salary, NOW());
+→ When salary updates → record old + new values and timestamp.
+
+DELIMITER $$
+CREATE PROCEDURE hike_salary(IN p_dept VARCHAR(20), IN p_pct DECIMAL(5,2))
+BEGIN
+  UPDATE emp
+  SET salary = salary + (salary * p_pct / 100)
+  WHERE dept = p_dept AND salary > 0;
+END$$
+DELIMITER ;
+→ Procedure increases salary by given percentage only for selected department.
+
+CALL hike_salary('IT', 10);
+→ Increases IT employee salaries by 10%.
+
+6) WHY EACH COMPONENT IS USED:
+TRIGGER → automatically logs salary changes.
+OLD & NEW → hold before/after values inside trigger.
+NOW() → timestamp for record history.
+Procedure → reuse hike logic for any department.
+Validation condition (salary > 0) → ensures no negative salary updates.
+
+7) COMMON VIVA QUESTIONS:
+Q: Why do we use triggers in payroll systems?
+A: To keep automatic logs of salary changes for audits and legal compliance.
+Q: Difference between OLD and NEW?
+A: OLD = value before update, NEW = value after update.
+Q: Why use stored procedure for hike?
+A: To avoid rewriting update logic multiple times.
+
+8) MODIFICATION EXAMPLE (FOR STRICT EXTERNAL):
+Give extra bonus of 2000 to Finance department:
+UPDATE emp SET salary = salary + 2000 WHERE dept = 'Finance';
+
+9) FINAL SUMMARY:
+This chit demonstrates secure payroll updates using stored procedures and triggers.
+The audit log ensures every salary change is tracked, improving accountability.
